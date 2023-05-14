@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rt-embed"
+version = "0.0.1"
+authors = [
+  { name="Zander Matheson", email="awmatheson@bytewax.io" },
+]
+description = "Composable real-time embedding pipelines"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache 2.0",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/awmatheson/rt-embed"
+"Bug Tracker" = "https://github.com/awmatheson/rt-embed/issues"
