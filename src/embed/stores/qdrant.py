@@ -15,6 +15,7 @@ class _QdrantVectorSink(StatelessSink):
         self._collection_name=collection_name
 
     def write(self, doc):
+        print(doc)
         _payload = doc.metadata
         _payload.update({"text":doc.text})
         self._client.upsert(

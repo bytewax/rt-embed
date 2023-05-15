@@ -19,6 +19,5 @@ flow.flat_map(lambda x: recurse_hn(x.html))
 # TODO - Deduplication
 
 flow.map(lambda x: x.parse_html(tokenizer))
-flow.map(lambda x: huggingface_custom(x, tokenizer, model))
-# flow.output("output", StdOutput())
-flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=384))
+flow.map(lambda x: huggingface_custom(x, tokenizer, model, length=512))
+flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=512))

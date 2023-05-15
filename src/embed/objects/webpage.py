@@ -1,10 +1,11 @@
 import time
 import hashlib
 
-from pydantic import BaseModel
 from fake_useragent import UserAgent
 import requests
 from requests.exceptions import RequestException
+
+from embed.objects.base import Document
 
 from unstructured.partition.html import partition_html
 from unstructured.cleaners.core import clean, replace_unicode_quotes, clean_non_ascii_chars
@@ -12,12 +13,6 @@ from unstructured.staging.huggingface import chunk_by_attention_window
 from unstructured.staging.huggingface import stage_for_transformers
 
 from typing import Any, Optional
-
-class Document(BaseModel):
-    group_key: Optional[str] = 'All'
-    metadata: Optional[dict] = {}
-    text: Optional[list] = []
-    embeddings: Optional[list] = []
 
 class WebPage(Document):
     url: str
