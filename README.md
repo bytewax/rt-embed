@@ -21,7 +21,7 @@ An RT embed pipeline is made up of at least 3 parts. An input source, the comput
 Define an input source
 
 ```python
-from rt-embed.sources import URLInput
+from rt-embed.sources import HTTPInput
 
 flow = Dataflow()
 flow.input(HTTPInput(urls=["https://news.ycombinator.com/"], poll_frequency=300))
@@ -30,9 +30,9 @@ flow.input(HTTPInput(urls=["https://news.ycombinator.com/"], poll_frequency=300)
 Select a processor or write your own
 
 ```python
-from rt-embed.processors import hn_parse
+from rt-embed.processors import recurse_hn
 
-flow.map(lambda x: hn_parse)
+flow.map(lambda x: recurse_hn)
 ```
 
 Select an embedding model or create your own

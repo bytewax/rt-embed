@@ -36,12 +36,12 @@ class AlpacaSource(StatelessSource):
 
 class AlpacaNewsInput(DynamicInput):
 
-    def __init__(self,)
-    TICKERS = ["*"]
+    def __init__(self, tickers):
+        self.tickers = tickers
 
     def build(self, worker_index, worker_count):
-        prods_per_worker = int(len(self.TICKERS) / worker_count)
-        worker_tickers = self.TICKERS[
+        prods_per_worker = int(len(self.tickers) / worker_count)
+        worker_tickers = self.tickers[
             int(worker_index * prods_per_worker) : int(
                 worker_index * prods_per_worker + prods_per_worker
             )

@@ -1,5 +1,5 @@
 # create embedding and store in vector db
-def embedding(document, tokenizer, model):
+def huggingface_custom(document, tokenizer, model):
     '''
     Create an embedding from the provided document
     '''
