@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rt-embed"
+name = "embed"
 version = "0.0.1"
 authors = [
   { name="Zander Matheson", email="awmatheson@bytewax.io" },
@@ -15,6 +15,27 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache 2.0",
     "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "bytewax>=0.16.1", 
+    "requests",
+    "websocket-client==1.5.1",
+    "pydantic==1.10.7",
+    "fake-useragent"
+]
+
+[project.optional-dependencies]
+qdrant = ["qdrant-client==1.1.1"]
+text = ["unstructured==0.6.2", "sentencepiece==0.1.97", "beautifulsoup4"]
+huggingface = ["transformers==4.26.1", "torch==1.13.1"]
+kafka = ["confluent-kafka<=2.0.2"]
+dev = [
+    "embed[text, qdrant, huggingface, kafka]",
+    "black==22.3.0",
+    "flake8==4.0.1",
+    "isort==5.10.1",
+    "pre-commit==2.19.0"
 ]
 
 [project.urls]

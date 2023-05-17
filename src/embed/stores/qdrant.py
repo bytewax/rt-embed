@@ -14,8 +14,8 @@ class _QdrantVectorSink(StatelessSink):
         self._client=client
         self._collection_name=collection_name
 
-    def write(self, id_hash__doc):
-        id_hash, doc = id_hash__doc
+    def write(self, doc):
+        print(doc)
         _payload = doc.metadata
         _payload.update({"text":doc.text})
         self._client.upsert(
@@ -31,7 +31,7 @@ class _QdrantVectorSink(StatelessSink):
         )
 
 
-class QdrantVectorOutput(DynamicOutput):
+class QdrantOutput(DynamicOutput):
     """Qdrant.
 
     Workers are the unit of parallelism.
