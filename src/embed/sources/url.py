@@ -1,4 +1,4 @@
-from datetime import datetime
+from time import time
 
 from bytewax.inputs import DynamicInput, StatelessSource
 
@@ -11,28 +11,29 @@ class HTTPSource(StatelessSource):
         self.poll_frequency = poll_frequency
         self.max_retries = max_retries
         self.wait_time = wait_time
-        self.poll_time = datetime.now()
-        self.counter = 0
+        self.poll_time = None
 
     def next(self):
-        elapsed_time = datetime.now() - self.poll_time
-        if self.counter > 0 and elapsed_time.total_seconds() < self.poll_frequency:
-            return None
-        else:
-            start_req = datetime.now()
-            webpages = []
-            for url in self.urls:
-                wp = WebPage(
-                    url=url, max_retries=self.max_retries, wait_time=self.wait_time
-                )
-                wp.get_page()
-                webpages.append(wp)
+        # If self.poll_time is not None, we have polled at least once.
+        if self.poll_time is not None:
+            # If self.poll_frequency is None, we stop polling
+            if self.poll_frequency is None:
+                raise StopIteration
+            # Otherwise we wait for the given amount of seconds
+            # to pass before fetching the page again, and return
+            # None meanwhile.
+            elif time() - self.poll_time < self.poll_frequency:
+                return None
 
-            total_req = start_req - datetime.now()
-            self.poll_frequency = self.poll_frequency - total_req.total_seconds()
-            self.poll_time = datetime.now()
-            self.counter += 1
-            return webpages
+        self.poll_time = time()
+        webpages = []
+        for url in self.urls:
+            page = WebPage(
+                url=url, max_retries=self.max_retries, wait_time=self.wait_time
+            )
+            page.get_page()
+            webpages.append(page)
+        return webpages
 
 
 class HTTPInput(DynamicInput):
