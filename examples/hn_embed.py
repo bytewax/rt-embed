@@ -1,4 +1,5 @@
 from bytewax.dataflow import Dataflow
+from bytewax.connectors.stdio import StdOutput
 
 from embed.sources.url import HTTPInput
 from embed.processing.html import recurse_hn
@@ -24,8 +25,8 @@ flow.input(
 flow.flat_map(lambda x: x)
 
 # Now we use `recurse_hn` to extract the urls of all the entries
-# in hackernews' homepage, and use flat_map again to unpack the
-# list of resulting urls
+# in hackernews' homepage, fetch their content, and use flat_map
+# again to unpack the list of resulting webpages
 flow.flat_map(lambda x: recurse_hn(x.html))
 
 # embed's WebPage object allows us to tokenize the html content
@@ -46,7 +47,6 @@ flow.map(
 # flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=512))
 
 # This is a stdout output for testing without qdrant
-from bytewax.connectors.stdio import StdOutput
 
 flow.map(lambda x: f"Processed: {x}")
 flow.output("output", StdOutput())

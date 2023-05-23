@@ -46,7 +46,7 @@ class HTTPInput(DynamicInput):
         self.wait_time = wait_time
 
     def build(self, worker_index, worker_count):
-        urls_per_worker = int(len(self.urls) / worker_count)
+        urls_per_worker = max(1, int(len(self.urls) / worker_count))
         worker_urls = self.urls[
             int(worker_index * urls_per_worker) : int(
                 worker_index * urls_per_worker + urls_per_worker

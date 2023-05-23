@@ -1,3 +1,7 @@
+"""
+Create embedding with a huggingface model and tokenizer
+"""
+
 from transformers import AutoTokenizer, AutoModel
 
 
@@ -28,7 +32,10 @@ def auto_model(model_name, cache_dir=None):
 def huggingface_custom(document, tokenizer, model, length=512):
     """
     Create an embedding from the provided document.
+
     Needs a huggingface tokenizer and model.
+    To instantiate a tokenizer and a model, you can use the
+    `auto_model` and `auto_tokenizer` functions in this module.
     """
     for chunk in document.text:
         inputs = tokenizer(
