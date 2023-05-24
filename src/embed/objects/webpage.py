@@ -8,11 +8,16 @@ from requests.exceptions import RequestException
 from embed.objects.base import Document
 
 from unstructured.partition.html import partition_html
-from unstructured.cleaners.core import clean, replace_unicode_quotes, clean_non_ascii_chars
+from unstructured.cleaners.core import (
+    clean,
+    replace_unicode_quotes,
+    clean_non_ascii_chars,
+)
 from unstructured.staging.huggingface import chunk_by_attention_window
 from unstructured.staging.huggingface import stage_for_transformers
 
 from typing import Any, Optional
+
 
 class WebPage(Document):
     url: str
@@ -57,15 +62,25 @@ class WebPage(Document):
                 time.sleep(current_wait_time)
                 i += 1
 
-
     # Clean the code and setup the dataclass
     def parse_html(self, tokenizer):
         article_elements = partition_html(text=self.html)
-        self.content = clean_non_ascii_chars(replace_unicode_quotes(clean(" ".join([str(x) if x.to_dict()['type'] == 'NarrativeText' else '' for x in article_elements]))))
+        self.content = clean_non_ascii_chars(
+            replace_unicode_quotes(
+                clean(
+                    " ".join(
+                        [
+                            str(x) if x.to_dict()["type"] == "NarrativeText" else ""
+                            for x in article_elements
+                        ]
+                    )
+                )
+            )
+        )
         self.text += chunk_by_attention_window(self.content, tokenizer)
         try:
             self.group_key = hashlib.md5(self.content[:2000].encode()).hexdigest()
         except AttributeError:
             self.group_key = hashlib.md5(self.content[:2000]).hexdigest()
-        
+
         return self
