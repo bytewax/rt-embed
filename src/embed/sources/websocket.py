@@ -7,6 +7,7 @@ from websocket import create_connection
 ALPACA_API_KEY = os.getenv("API_KEY")
 ALPACA_API_SECRET = os.getenv("API_SECRET")
 
+
 class AlpacaSource(StatelessSource):
     def __init__(self, worker_tickers):
         self.worker_tickers = worker_tickers
@@ -17,17 +18,11 @@ class AlpacaSource(StatelessSource):
             raise "No API KEY or API SECRET, please save as environment variables before continuing"
         self.ws.send(
             json.dumps(
-                {"action":"auth",
-                 "key":f"{API_KEY}",
-                 "secret":f"{API_SECRET}"}
+                {"action": "auth", "key": f"{API_KEY}", "secret": f"{API_SECRET}"}
             )
         )
         print(self.ws.recv())
-        self.ws.send(
-            json.dumps(
-                {"action":"subscribe","news":self.worker_tickers}
-            )
-        )
+        self.ws.send(json.dumps({"action": "subscribe", "news": self.worker_tickers}))
         print(self.ws.recv())
 
     def next(self):
@@ -35,7 +30,6 @@ class AlpacaSource(StatelessSource):
 
 
 class AlpacaNewsInput(DynamicInput):
-
     def __init__(self, tickers):
         self.tickers = tickers
 
