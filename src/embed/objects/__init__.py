@@ -5,4 +5,3 @@ __all__ = [
     "WebPage",
     "Document",
     "Image",
-]
