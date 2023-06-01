@@ -1,9 +1,3 @@
-import os
-import re
-import logging
-import io
-import numpy as np
-
 from bytewax.dataflow import Dataflow
 from bytewax.inputs import PartitionedInput, StatefulSource
 from sqlalchemy import create_engine, inspect
@@ -58,7 +52,7 @@ class _SQLAlchemySource(StatefulSource):
         comments = self.inspector.get_table_comment(table, schema=schema)
         table_representation + f"{comments}"
 
-        return {"schema":schema, "table_name":table, "text": table_representation}
+        return {"key": f"{schema}+{table}", "schema":schema, "table_name":table, "text": table_representation}
 
     def snapshot(self):
         pass
@@ -68,6 +62,6 @@ class _SQLAlchemySource(StatefulSource):
 
 flow = Dataflow()
 flow.input("schema_data", SQLAlchemyInput(["postgresql://user:password@localhost/mydatabase"]))
-flow.map(lambda table_data: Document(text=table_data.pop("text"), metadata=table_data))
+flow.map(lambda table_data: Document(key=table_data.pop("key"), text=table_data.pop("text"), metadata=table_data))
 flow.map(lambda doc: hf_document_embed(doc, tokenizer, model, length=512))
 flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=512))
