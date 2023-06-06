@@ -1,0 +1,1 @@
+from bytewax.connectors.kafka import KafkaInput

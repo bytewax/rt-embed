@@ -3,7 +3,7 @@ from bytewax.connectors.stdio import StdOutput
 
 from embed.sources.url import HTTPInput
 from embed.processing.html import recurse_hn
-from embed.embedding.huggingface import huggingface_custom
+from embed.embedding.huggingface import hf_document_embed
 from embed.stores.qdrant import QdrantOutput
 
 from transformers import AutoTokenizer, AutoModel
@@ -21,5 +21,6 @@ flow.flat_map(lambda x: recurse_hn(x.html))
 # TODO - Deduplication
 
 flow.map(lambda x: x.parse_html(tokenizer))
-flow.map(lambda x: huggingface_custom(x, tokenizer, model, length=512))
+
+flow.map(lambda x: hf_document_embed(x, tokenizer, model, length=512))
 flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=512))

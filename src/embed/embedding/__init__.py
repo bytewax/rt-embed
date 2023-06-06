@@ -1,5 +1,6 @@
-from embed.embedding.huggingface import huggingface_custom
+from embed.embedding.huggingface import hf_document_embed, hf_image_embed
 
 __all__ = [
-    "huggingface_custom",
-]
+    "hf_document_embed",
+    "hf_image_embed"
+
