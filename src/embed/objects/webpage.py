@@ -1,12 +1,13 @@
 import time
+import requests
 import hashlib
 
+from typing import Optional
+
+from .base import Document
+
 from fake_useragent import UserAgent
-import requests
 from requests.exceptions import RequestException
-
-from embed.objects.base import Document
-
 from unstructured.partition.html import partition_html
 from unstructured.cleaners.core import (
     clean,
@@ -14,9 +15,6 @@ from unstructured.cleaners.core import (
     clean_non_ascii_chars,
 )
 from unstructured.staging.huggingface import chunk_by_attention_window
-from unstructured.staging.huggingface import stage_for_transformers
-
-from typing import Any, Optional
 
 
 class WebPage(Document):
@@ -28,7 +26,7 @@ class WebPage(Document):
     wait_time: Optional[int] = 1
 
     def __str__(self):
-        return f"WebPage: url={self.url}, html={self.html}, text={self.text}, metadata={self.metadata}"
+        return f"WebPage({self.url})"
 
     def get_page(self):
         if self.headers == {}:
@@ -47,7 +45,7 @@ class WebPage(Document):
             }
         current_wait_time = self.wait_time
         # Send the initial request
-        for i in range(self.max_retries + 1):
+        for i in range(self.max_retries):
             try:
                 response = requests.get(self.url, headers=self.headers)
                 response.raise_for_status()
@@ -58,6 +56,7 @@ class WebPage(Document):
                 if i == self.max_retries:
                     print(f"skipping url {self.url}")
                     self.html = ""
+                    break
                 print(f"Retrying in {current_wait_time} seconds...")
                 time.sleep(current_wait_time)
                 i += 1

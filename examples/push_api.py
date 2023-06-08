@@ -15,6 +15,7 @@ from io import BytesIO
 
 logging.basicConfig(level=logging.INFO)
 
+
 class HTTPRequest(BaseHTTPRequestHandler):
     def __init__(self, request_text):
         self.rfile = BytesIO(request_text)
@@ -26,8 +27,9 @@ class HTTPRequest(BaseHTTPRequestHandler):
         self.error_code = code
         self.error_message = message
 
+
 class PushInput(PartitionedInput):
-    def __init__(self, endpoint:str, port: int = 8000, host: str = "0.0.0.0"):
+    def __init__(self, endpoint: str, port: int = 8000, host: str = "0.0.0.0"):
         self.endpoint = endpoint
         self.host = host
         self.port = port
@@ -39,32 +41,33 @@ class PushInput(PartitionedInput):
         assert for_key == "single-part"
         assert resume_state is None
         return _PushSource(self.endpoint, self.host, self.port)
-    
+
+
 class _PushSource(StatefulSource):
     def __init__(self, endpoint, host, port):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server_socket.bind((host, port))
         self.server_socket.listen(1)
-        logging.info('Listening on port %s ...', port)
+        logging.info("Listening on port %s ...", port)
 
     def next(self):
         client_connection, client_address = self.server_socket.accept()
         try:
             request = client_connection.recv(1024)
             request = HTTPRequest(request)
-            content_len = int(request.headers['Content-Length'])
+            content_len = int(request.headers["Content-Length"])
             post_body = request.rfile.read(content_len)
             data = json.loads(post_body)
         except Exception as e:
             logging.error(f"Failed to process request: {e}")
             return None
         finally:
-            response = 'HTTP/1.0 200 OK'
+            response = "HTTP/1.0 200 OK"
             client_connection.sendall(response.encode())
             client_connection.close()
         return data
-    
+
     def snapshot(self):
         pass
 
@@ -72,6 +75,7 @@ class _PushSource(StatefulSource):
         self.server_socket.close()
         logging.info("Server socket closed.")
 
+
 flow = Dataflow()
-flow.input("push-input", PushInput("hey"))       
+flow.input("push-input", PushInput("hey"))
 flow.output("out", StdOutput())

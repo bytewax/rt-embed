@@ -18,6 +18,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 model = whisper.load_model("base")
 print(DEVICE)
 
+
 class YouTubeInput(PartitionedInput):
     def __init__(self, urls: list, audio_only: bool = True):
         self.urls = urls
@@ -30,24 +31,26 @@ class YouTubeInput(PartitionedInput):
     def build_part(self, part_url, resume_state):
         assert resume_state is None
         return _YouTubeSource(part_url, self.audio_only)
-    
+
+
 class _YouTubeSource(StatefulSource):
     def __init__(self, yt_url, audio_only):
         # TODO: check for ffmpeg
         self.complete = False
         self.yt_url = yt_url
-        self.yt = YouTube(self.yt_url,
-                          on_complete_callback=self.mark_complete)
+        self.yt = YouTube(self.yt_url, on_complete_callback=self.mark_complete)
         if audio_only:
             self.stream = self.yt.streams.filter(only_audio=True).first()
         else:
             self.stream = self.yt.streams.filter().first()
-        self.audio_file = self.stream.download(filename=f"{self.yt_url.split('?')[-1]}.mp4")
+        self.audio_file = self.stream.download(
+            filename=f"{self.yt_url.split('?')[-1]}.mp4"
+        )
 
     def mark_complete(self, file_path, x):
         self.complete = True
         self.processed = False
-        
+
     def next(self):
         if not self.complete:
             return None
@@ -68,7 +71,8 @@ class _YouTubeSource(StatefulSource):
     def close(self):
         os.remove(self.audio_file)
 
+
 flow = Dataflow()
-flow.input("youtube", YouTubeInput(['https://www.youtube.com/watch?v=qJ3PWyx7w2Q']))
+flow.input("youtube", YouTubeInput(["https://www.youtube.com/watch?v=qJ3PWyx7w2Q"]))
 flow.map(model.transcribe)
 flow.output("out", StdOutput())

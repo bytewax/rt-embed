@@ -8,6 +8,7 @@ class Document(BaseModel):
     text: Optional[list] = []
     embeddings: Optional[list] = []
 
+
 class Image(BaseModel):
     group_key: Optional[str] = 'All'
     metadata: Optional[dict] = {}

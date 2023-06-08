@@ -1,4 +1,4 @@
-from embed.stores.qdrant import QdrantOutput
+from .qdrant import QdrantOutput
 
 __all__ = [
     "QdrantOutput",

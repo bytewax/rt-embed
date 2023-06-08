@@ -1,5 +1,3 @@
-import datetime
-
 from bytewax.outputs import DynamicOutput, StatelessSink
 
 from qdrant_client import QdrantClient

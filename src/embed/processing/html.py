@@ -1,4 +1,4 @@
-from embed.objects import WebPage
+from ..objects import WebPage
 
 from bs4 import BeautifulSoup
 
@@ -25,7 +25,8 @@ def recurse_hn(html):
         if "item?id=" in link:
             link = f"https://news.ycombinator.com/{link}"
         wp = WebPage(url=link)
-        wp.get_page()
+        # wp.get_page()
+        wp.max_retries = 1
         wp.metadata = metadata
         webpages.append(wp)
     return webpages

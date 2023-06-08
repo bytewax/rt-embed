@@ -1,6 +1,9 @@
-from embed.objects import Document, Image
+import torch
 
-def process_inputs(inputs, model, device):
+from ..objects import Document
+
+
+def process_inputs(inputs, model):
     """
     Process inputs and get embeddings
     """
@@ -8,23 +11,28 @@ def process_inputs(inputs, model, device):
         embeddings = model(**inputs).last_hidden_state[:, 0].cpu().detach().numpy()
     return embeddings.flatten().tolist()
 
+
 def get_document_inputs(chunk, tokenizer, length=512):
     """
     Get document model inputs
     """
-    return tokenizer(chunk, padding=True, truncation=True, return_tensors="pt", max_length=length)
+    return tokenizer(
+        chunk, padding=True, truncation=True, return_tensors="pt", max_length=length
+    )
+
 
 def get_image_inputs(batch, transformation_chain, device):
     """
     Get image model inputs
     """
-    images = [image_data['image'] for image_data in batch]
+    images = [image_data["image"] for image_data in batch]
     image_batch_transformed = torch.stack(
         [transformation_chain(image) for image in images]
     )
     return {"pixel_values": image_batch_transformed.to(device)}
 
-def hf_document_embed(document:Document, tokenizer, model, length=512):
+
+def hf_document_embed(document: Document, tokenizer, model, length=512):
     """
     Create an embedding from the provided document
     """
@@ -34,7 +42,8 @@ def hf_document_embed(document:Document, tokenizer, model, length=512):
         document.embeddings.append(embeddings)
     return document
 
-def hf_image_embed(batch:list, model, transformation_chain, device):
+
+def hf_image_embed(batch: list, model, transformation_chain, device):
     inputs = get_image_inputs(batch, transformation_chain)
-    embeddings = process_inputs(inputs, model, device)
+    embeddings = process_inputs(inputs, model)
     return {"embeddings": embeddings}
