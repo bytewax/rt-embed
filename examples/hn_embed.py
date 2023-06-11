@@ -3,23 +3,50 @@ from bytewax.connectors.stdio import StdOutput
 
 from embed.sources.url import HTTPInput
 from embed.processing.html import recurse_hn
-from embed.embedding.huggingface import huggingface_custom
-from embed.stores.qdrant import QdrantOutput
+from embed.embedding.huggingface import huggingface_custom, auto_tokenizer, auto_model
 
-from transformers import AutoTokenizer, AutoModel
-
-tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
-model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 flow = Dataflow()
+
+# Get the homepage of hackernews as the source
 flow.input(
-    "http_input", HTTPInput(urls=["https://news.ycombinator.com/"], poll_frequency=300)
+    "http_input",
+    HTTPInput(
+        urls=["https://news.ycombinator.com/"],
+        # Set poll_frequency to None to only fetch the page once,
+        # for testing.
+        poll_frequency=None,
+    ),
 )
+
+# The input returns a list of WebPages, so we use flat_map
+# to unpack the list into single items (only one in this case)
 flow.flat_map(lambda x: x)
+
+# Now we use `recurse_hn` to extract the urls of all the entries
+# in hackernews' homepage, fetch their content, and use flat_map
+# again to unpack the list of resulting webpages
 flow.flat_map(lambda x: recurse_hn(x.html))
 
-# TODO - Deduplication
+# embed's WebPage object allows us to tokenize the html content
+# using a tokenizer from transformer's library
+flow.map(lambda x: x.parse_html(auto_tokenizer(MODEL_NAME)))
 
-flow.map(lambda x: x.parse_html(tokenizer))
-flow.map(lambda x: huggingface_custom(x, tokenizer, model, length=512))
-flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=512))
+# We need to initialize a new tokenizer here, since this could
+# run in parallel with the other one thanks to bytewax, and we
+# can only use an instance at a time
+flow.map(
+    lambda x: huggingface_custom(
+        x, auto_tokenizer(MODEL_NAME), auto_model(MODEL_NAME), length=512
+    )
+)
+
+# Finally send the embeddings to qdrant
+# from embed.stores.qdrant import QdrantOutput
+# flow.output("output", QdrantOutput(collection_name="test_collection", vector_size=512))
+
+# This is a stdout output for testing without qdrant
+
+flow.map(lambda x: f"Processed: {x}")
+flow.output("output", StdOutput())
