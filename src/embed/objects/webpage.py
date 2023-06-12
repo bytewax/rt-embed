@@ -4,8 +4,6 @@ import hashlib
 
 from typing import Optional
 
-from .base import Document
-
 from fake_useragent import UserAgent
 from requests.exceptions import RequestException
 from unstructured.partition.html import partition_html
@@ -15,6 +13,8 @@ from unstructured.cleaners.core import (
     clean_non_ascii_chars,
 )
 from unstructured.staging.huggingface import chunk_by_attention_window
+
+from .base import Document
 
 
 class WebPage(Document):
@@ -26,17 +26,23 @@ class WebPage(Document):
     wait_time: int = 1
 
     def __str__(self):
-        return f"WebPage({self.url})"
+        return f"WebPage('{self.url}')"
 
     def get_page(self):
         if self.headers is None:
             # make a user agent
             ua = UserAgent()
+            accept = [
+                "text/html",
+                "application/xhtml+xml",
+                "application/xml;q=0.9",
+                "image/webp",
+                "*/*;q=0.8",
+            ]
 
             self.headers = {
                 "User-Agent": ua.random,
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*"
-                ";q=0.8",
+                "Accept": ",".join(accept),
                 "Accept-Language": "en-US,en;q=0.5",
                 "Referrer": "https://www.google.com/",
                 "DNT": "1",
