@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 
 # recursively get the html from links on the webpage
-def recurse_hn(html):
+def recurse_hn(html: str) -> list[WebPage]:
     """
     Get all the links from the html object and request the webpage
     and return them in a list of html bs4 objects.

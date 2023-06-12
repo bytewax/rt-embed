@@ -7,6 +7,7 @@ name = "embed"
 version = "0.0.1"
 authors = [
   { name="Zander Matheson", email="awmatheson@bytewax.io" },
+  { name="Federico Dolce", email="federico@bytewax.io" },
 ]
 description = "Composable real-time embedding pipelines"
 readme = "README.md"
@@ -39,5 +40,5 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/awmatheson/rt-embed"
-"Bug Tracker" = "https://github.com/awmatheson/rt-embed/issues"
+"Homepage" = "https://github.com/bytewax/rt-embed"
+"Bug Tracker" = "https://github.com/bytewax/rt-embed/issues"

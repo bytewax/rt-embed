@@ -131,7 +131,10 @@ class Pipeline(Dataflow):
         """
         self.flat_map(lambda x: recurse_hn(x.html))
 
-        def fetch(page):
+        from typing import Optional
+        from .objects import WebPage
+
+        def fetch(page: WebPage) -> Optional[WebPage]:
             page.get_page()
             if page.html:
                 return page
